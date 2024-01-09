@@ -9,7 +9,10 @@
   <style>
     /* 设置网页的背景颜色 */
     body {
-      background-color: #f0f0f0;
+        background-image: url('image/Background.jpg');
+        background-size: cover;  /* 保持图片覆盖整个页面 */
+        background-repeat: no-repeat;  /* 防止图片重复 */
+        background-color: #f0f0f0;  /* 如果图片加载失败，显示背景颜色 *
     }
 
     /* 设置老虎机的容器的样式 */
@@ -80,13 +83,13 @@
     <!-- 创建开始按钮 -->
     <button id="start">开始</button>
     <!-- 创建提示信息 -->
-    <p id="message">你有 30 次机会</p>
+    <p id="message">你有 10 次机会</p>
   </div>
   <!-- 引入 jQuery 库 -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     // 定义一个变量，用来记录抽奖次数
-    var count = 30;
+    var count = 10;
 
     // 定义一个函数，用来控制转轴的旋转
     function spin() {
