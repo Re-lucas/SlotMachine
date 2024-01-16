@@ -10,6 +10,7 @@ class SlotMachine:
         self.bet_amount = 1  # Default bet amount is set to 1
         self.jackpot = 0
         self.holds = [False, False, False]
+        self.hold_count = 0  # Count of current holds
         self.result_labels = []
 
         self.create_widgets()
@@ -61,7 +62,18 @@ class SlotMachine:
             messagebox.showinfo("Error", "Insufficient credits to place this bet.")
 
     def toggle_hold(self, slot_index):
-        self.holds[slot_index] = not self.holds[slot_index]
+        if self.hold_count >= 2:
+            messagebox.showinfo("Error", "You can only hold up to two symbols.")
+            return
+
+        if not self.holds[slot_index]:
+            self.holds[slot_index] = True
+            self.hold_count += 1
+            self.result_labels[slot_index].config(text=f"HOLD", fg="red")
+        else:
+            self.holds[slot_index] = False
+            self.hold_count -= 1
+            self.result_labels[slot_index].config(text="")
 
     def spin(self):
         if self.bet_amount == 0:
@@ -72,11 +84,15 @@ class SlotMachine:
         self.credits -= self.bet_amount
         self.credit_label.config(text=f"Credits: {self.credits}")
 
+        # Automatically release holds and reset hold count
+        self.holds = [False, False, False]
+        self.hold_count = 0
+
         symbols = ["Cherry", "Lemon", "Lucky 7", "Bar", "Diamond", "Jackpot"]
         results = [random.choice(symbols) if not self.holds[i] else self.result_labels[i].cget("text") for i in range(3)]
 
         for i in range(3):
-            self.result_labels[i].config(text=results[i])
+            self.result_labels[i].config(text=results[i], fg="black")
 
         self.check_winning_combination(results)
 
