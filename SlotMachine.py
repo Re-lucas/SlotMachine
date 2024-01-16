@@ -64,12 +64,12 @@ class SlotMachine:
     def toggle_hold(self, slot_index):
         # Allow only two holds
         if self.hold_count < 2 or self.holds[slot_index]:
-            self.holds[slot_index] = not self.holds[slot_index]
-            self.hold_count += 1 if self.holds[slot_index] else -1
-
-        # Show warning if exceeding hold limit
-        if self.hold_count > 2:
-            messagebox.showinfo("Warning", "You can only hold two symbols per spin.")
+            # If trying to increase hold count beyond two, show warning
+            if not self.holds[slot_index] and self.hold_count >= 2:
+                messagebox.showinfo("Warning", "You can only hold two symbols per spin.")
+            else:
+                self.holds[slot_index] = not self.holds[slot_index]
+                self.hold_count += 1 if self.holds[slot_index] else -1
 
     def spin(self):
         if self.bet_amount == 0:
@@ -89,10 +89,33 @@ class SlotMachine:
         self.check_winning_combination(results)
         
     def check_winning_combination(self, results):
-        # ... (unchanged code)
+        # Define winning combinations and their multipliers
+        winning_combinations = {
+            "Cherry": 3,
+            "Lemon": 5,
+            "Lucky 7": 7,
+            "Bar": 10,
+            "Diamond": 20,
+            "Jackpot": "all_credits",  # Special case for Jackpot
+        }
 
-        if "Jackpot" in results:
-            self.jackpot += self.bet_amount * 10
+        # Calculate total multiplier based on results
+        total_multiplier = 1
+        for result in results:
+            if result in winning_combinations:
+                total_multiplier *= winning_combinations[result]
+
+        # Apply multipliers and update credits and jackpot labels
+        if total_multiplier > 1:
+            if total_multiplier == "all_credits":
+                # Special case for Jackpot
+                self.jackpot += self.credits
+                self.credits += self.jackpot
+            else:
+                self.credits += self.bet_amount * total_multiplier
+
+            # Update labels
+            self.credit_label.config(text=f"Credits: {self.credits}")
             self.jackpot_label.config(text=f"Jackpot: {self.jackpot}")
 
         if self.credits <= 0:
