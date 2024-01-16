@@ -7,7 +7,7 @@ class SlotMachine:
         self.master = master
         self.master.title("Slot Machine")
         self.credits = 100
-        self.bet_amount = 0
+        self.bet_amount = 1  # Default bet amount is set to 1
         self.jackpot = 0
         self.holds = [False, False, False]
         self.result_labels = []
@@ -67,6 +67,10 @@ class SlotMachine:
         if self.bet_amount == 0:
             messagebox.showinfo("Error", "Please place a bet first.")
             return
+
+        # Always deduct credits when spinning
+        self.credits -= self.bet_amount
+        self.credit_label.config(text=f"Credits: {self.credits}")
 
         symbols = ["Cherry", "Lemon", "Lucky 7", "Bar", "Diamond", "Jackpot"]
         results = [random.choice(symbols) if not self.holds[i] else self.result_labels[i].cget("text") for i in range(3)]
