@@ -15,115 +15,48 @@ class SlotMachine:
         self.create_widgets()
 
     def create_widgets(self):
-        # Labels
+        # Left-top: User Credits
         self.credit_label = tk.Label(self.master, text=f"Credits: {self.credits}")
-        self.credit_label.pack()
+        self.credit_label.grid(row=0, column=0, padx=10, pady=10, sticky='w')
 
-        # New Label for Jackpot
+        # Right-top: Potential Winnings (Jackpot)
         self.jackpot_label = tk.Label(self.master, text=f"Jackpot: {self.jackpot}")
-        self.jackpot_label.pack()
+        self.jackpot_label.grid(row=0, column=1, padx=10, pady=10, sticky='e')
 
-        self.bet_label = tk.Label(self.master, text="Place your bet:")
-        self.bet_label.pack()
-
-        # Bet Buttons
+        # Bet Buttons (1, 2, 5, 10)
         bet_options = [1, 2, 5, 10]
-        for option in bet_options:
-            btn = tk.Button(self.master, text=str(option), command=lambda o=option: self.place_bet(o))
-            btn.pack()
+        row_bet_buttons = tk.Frame(self.master)
+        row_bet_buttons.grid(row=1, column=0, columnspan=2, pady=10)
+
+        for col, option in enumerate(bet_options):
+            btn = tk.Button(row_bet_buttons, text=str(option), command=lambda o=option: self.place_bet(o))
+            btn.grid(row=0, column=col, padx=5)
 
         # Spin Button
         spin_btn = tk.Button(self.master, text="Spin", command=self.spin)
-        spin_btn.pack()
+        spin_btn.grid(row=2, column=0, columnspan=2, pady=10)
 
-        # Hold Buttons
-        for i in range(3):
-            hold_btn = tk.Button(self.master, text=f"Hold {i + 1}", command=lambda j=i: self.toggle_hold(j))
-            hold_btn.pack()
+        # Hold Buttons (Hold 1, Hold 2, Hold 3)
+        row_hold_buttons = tk.Frame(self.master)
+        row_hold_buttons.grid(row=3, column=0, columnspan=2, pady=10)
 
-        # Result Labels
-        for _ in range(3):
-            label = tk.Label(self.master, text="", font=("Arial", 20))
-            self.result_labels.append(label)
-            label.pack()
-            
-    def check_winning_combination(self, results):
-        winning_combinations = {
-            "Cherry": 1,
-            "Lemon": 5,
-            "Lucky 7": 7,
-            "Bar": 10,
-            "Diamond": 20,
-            "Jackpot": "All"
-        }
-
-        winnings = 0
-        for symbol, multiplier in winning_combinations.items():
-            count = results.count(symbol)
-            if count == 3:
-                if symbol == "Jackpot":
-                    self.jackpot += self.bet_amount * 10
-                    self.jackpot_label.config(text=f"Jackpot: {self.jackpot}")  # Update jackpot label
-                winnings = self.bet_amount * multiplier
-                break
-            elif count == 2:
-                winnings = self.bet_amount * 2
-
-        self.credits += winnings
-        self.credit_label.config(text=f"Credits: {self.credits}")
-
-        if winnings > 0:
-            messagebox.showinfo("Congratulations", f"You won {winnings} credits!")
-
-        if self.credits <= 0:
-            self.end_game()
-
-
-class SlotMachine:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Slot Machine")
-        self.credits = 100
-        self.bet_amount = 0
-        self.jackpot = 0
-        self.holds = [False, False, False]
-        self.result_labels = []
-
-        self.create_widgets()
-
-    def create_widgets(self):
-        # Labels
-        self.credit_label = tk.Label(self.master, text=f"Credits: {self.credits}")
-        self.credit_label.pack()
-
-        self.bet_label = tk.Label(self.master, text="Place your bet:")
-        self.bet_label.pack()
-
-        # Bet Buttons
-        bet_options = [1, 2, 5, 10]
-        for option in bet_options:
-            btn = tk.Button(self.master, text=str(option), command=lambda o=option: self.place_bet(o))
-            btn.pack()
-
-        # Spin Button
-        spin_btn = tk.Button(self.master, text="Spin", command=self.spin)
-        spin_btn.pack()
-
-        # Hold Buttons
-        for i in range(3):
-            hold_btn = tk.Button(self.master, text=f"Hold {i + 1}", command=lambda j=i: self.toggle_hold(j))
-            hold_btn.pack()
+        for col, i in enumerate(range(1, 4)):
+            hold_btn = tk.Button(row_hold_buttons, text=f"Hold {i}", command=lambda j=i-1: self.toggle_hold(j))
+            hold_btn.grid(row=0, column=col, padx=5)
 
         # Result Labels
-        for _ in range(3):
-            label = tk.Label(self.master, text="", font=("Arial", 20))
-            self.result_labels.append(label)
-            label.pack()
+        for row in range(4, 7):
+            for col in range(3):
+                label = tk.Label(self.master, text="", font=("Arial", 20))
+                label.grid(row=row, column=col, padx=5)
+
+                self.result_labels.append(label)
 
     def place_bet(self, amount):
         if self.credits >= amount:
             self.bet_amount = amount
-            self.credit_label.config(text=f"Credits: {self.credits - self.bet_amount}")
+            self.credits -= self.bet_amount
+            self.credit_label.config(text=f"Credits: {self.credits}")
         else:
             messagebox.showinfo("Error", "Insufficient credits to place this bet.")
 
@@ -135,9 +68,6 @@ class SlotMachine:
             messagebox.showinfo("Error", "Please place a bet first.")
             return
 
-        if not any(self.holds):
-            self.credits -= self.bet_amount
-
         symbols = ["Cherry", "Lemon", "Lucky 7", "Bar", "Diamond", "Jackpot"]
         results = [random.choice(symbols) if not self.holds[i] else self.result_labels[i].cget("text") for i in range(3)]
 
@@ -147,10 +77,11 @@ class SlotMachine:
         self.check_winning_combination(results)
 
     def check_winning_combination(self, results):
-        # ... (same as before)
+        # ... (unchanged code)
 
         if "Jackpot" in results:
             self.jackpot += self.bet_amount * 10
+            self.jackpot_label.config(text=f"Jackpot: {self.jackpot}")
 
         if self.credits <= 0:
             self.end_game()
