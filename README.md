@@ -75,6 +75,6 @@ python slot_machine.py
 
 ## License
 
-This project is do not licensed.
+This project is does not licensed.
 ```
 

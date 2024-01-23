@@ -1,3 +1,5 @@
+#Slot-Machine Created by Lcuas Wu
+#TimeLine: 12,1,2023 to 1,23,2024 
 import tkinter as tk
 from tkinter import messagebox
 import random
