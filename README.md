@@ -1,5 +1,3 @@
-当你创建了一个名为 `README.md` 的Markdown文件，并将下面的内容粘贴到文件中，你就拥有了一个基本的项目README。请将这个Markdown文本粘贴到你的 `README.md` 文件中：
-
 ```markdown
 # Slot Machine Game
 
