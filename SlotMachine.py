@@ -99,24 +99,23 @@ class SlotMachine:
             "Jackpot": "all_credits",  # Special case for Jackpot
         }
 
-        # Calculate total multiplier based on results
-        total_multiplier = 1
-        for result in results:
-            if result in winning_combinations:
-                total_multiplier *= winning_combinations[result]
+        # Check if all three results are the same
+        if results[0] == results[1] == results[2]:
+            symbol = results[0]
+            if symbol in winning_combinations:
+                multiplier = winning_combinations[symbol]
 
-        # Apply multipliers and update credits and jackpot labels
-        if total_multiplier > 1:
-            if total_multiplier == "all_credits":
-                # Special case for Jackpot
-                self.jackpot += self.credits
-                self.credits += self.jackpot
-            else:
-                self.credits += self.bet_amount * total_multiplier
+                # Apply multipliers and update credits and jackpot labels
+                if multiplier == "all_credits":
+                    # Special case for Jackpot
+                    self.jackpot += self.credits
+                    self.credits += self.jackpot
+                else:
+                    self.credits += self.bet_amount * multiplier
 
-            # Update labels
-            self.credit_label.config(text=f"Credits: {self.credits}")
-            self.jackpot_label.config(text=f"Jackpot: {self.jackpot}")
+                # Update labels
+                self.credit_label.config(text=f"Credits: {self.credits}")
+                self.jackpot_label.config(text=f"Jackpot: {self.jackpot}")
 
         if self.credits <= 0:
             self.end_game()
