@@ -12,6 +12,8 @@ class SlotMachine:
         self.holds = [False, False, False]
         self.hold_count = 0  # Count for the number of holds
         self.result_labels = []
+        self.games_won = 0
+        self.games_lost = 0
 
         self.create_widgets()
 
@@ -54,17 +56,18 @@ class SlotMachine:
                 self.result_labels.append(label)
 
     def place_bet(self, amount):
-        if self.credits >= amount:
-            self.bet_amount = amount
-            self.credits -= self.bet_amount
-            self.credit_label.config(text=f"Credits: {self.credits}")
+        if amount in [1, 2, 5, 10]:  # Only allow valid bet amounts
+            if self.credits >= amount:
+                self.bet_amount = amount
+                self.credits -= self.bet_amount
+                self.credit_label.config(text=f"Credits: {self.credits}")
+            else:
+                messagebox.showinfo("Error", "Insufficient credits to place this bet.")
         else:
-            messagebox.showinfo("Error", "Insufficient credits to place this bet.")
+            messagebox.showinfo("Error", "Invalid bet amount. Please choose 1, 2, 5, or 10 credits.")
 
     def toggle_hold(self, slot_index):
-        # Allow only two holds
         if self.hold_count < 2 or self.holds[slot_index]:
-            # If trying to increase hold count beyond two, show warning
             if not self.holds[slot_index] and self.hold_count >= 2:
                 messagebox.showinfo("Warning", "You can only hold two symbols per spin.")
             else:
@@ -76,7 +79,10 @@ class SlotMachine:
             messagebox.showinfo("Error", "Please place a bet first.")
             return
 
-        # Always deduct credits when spinning
+        if self.hold_count == 2:
+            messagebox.showinfo("Warning", "You cannot hold on two consecutive spins.")
+            return
+
         self.credits -= self.bet_amount
         self.credit_label.config(text=f"Credits: {self.credits}")
 
@@ -87,33 +93,33 @@ class SlotMachine:
             self.result_labels[i].config(text=results[i])
 
         self.check_winning_combination(results)
-        
+
     def check_winning_combination(self, results):
-        # Define winning combinations and their multipliers
         winning_combinations = {
-            "Cherry": 3,
+            "Cherry": 1,
             "Lemon": 5,
             "Lucky 7": 7,
             "Bar": 10,
             "Diamond": 20,
-            "Jackpot": "all_credits",  # Special case for Jackpot
+            "Jackpot": "all_credits",
         }
 
-        # Check if all three results are the same
         if results[0] == results[1] == results[2]:
             symbol = results[0]
             if symbol in winning_combinations:
                 multiplier = winning_combinations[symbol]
 
-                # Apply multipliers and update credits and jackpot labels
                 if multiplier == "all_credits":
-                    # Special case for Jackpot
-                    self.jackpot += self.credits
-                    self.credits += self.jackpot
+                    if symbol == "Jackpot":
+                        self.credits += self.jackpot
+                        self.jackpot = 0
+                    else:
+                        self.jackpot += self.credits
+                        self.credits = 0
+
                 else:
                     self.credits += self.bet_amount * multiplier
 
-                # Update labels
                 self.credit_label.config(text=f"Credits: {self.credits}")
                 self.jackpot_label.config(text=f"Jackpot: {self.jackpot}")
 
@@ -121,7 +127,15 @@ class SlotMachine:
             self.end_game()
 
     def end_game(self):
-        messagebox.showinfo("Game Over", f"Total credits: {self.credits}")
+        self.master.withdraw()
+
+        if self.credits > 100:
+            messagebox.showinfo("Game Over", f"Congratulations! You finished with {self.credits} credits.\n"
+                                              f"Games won: {self.games_won}\nGames lost: {self.games_lost}")
+        else:
+            messagebox.showinfo("Game Over", f"Better luck next time! You finished with {self.credits} credits.\n"
+                                              f"Games won: {self.games_won}\nGames lost: {self.games_lost}")
+
         self.master.destroy()
 
 if __name__ == "__main__":
